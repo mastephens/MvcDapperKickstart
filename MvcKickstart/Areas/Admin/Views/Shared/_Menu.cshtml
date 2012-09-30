@@ -1,0 +1,8 @@
+﻿<div class="nav-collapse">
+	<ul class="nav">
+		<li><a href="@Url.Admin().Home().Index()">Admin Home</a></li>
+	</ul>
+	<ul class="nav pull-right">
+		<li>@Html.Action("UsernameOrLogin", "Home", new { Area = "" }, true)</li>
+	</ul>
+</div>

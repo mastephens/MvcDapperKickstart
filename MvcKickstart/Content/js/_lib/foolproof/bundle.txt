@@ -1,0 +1,5 @@
+﻿mvcfoolproof.unobtrusive.js
+
+[references]
+~/Content/js/_lib/jquery
+~/Content/js/_lib/jquery.validate

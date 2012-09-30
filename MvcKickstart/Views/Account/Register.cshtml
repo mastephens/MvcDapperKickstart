@@ -1,0 +1,61 @@
+﻿@model Register
+
+@{
+	Bundles.Reference("~/Content/js/_lib/jquery.validate");
+}
+@section Title {
+	Register to get started!
+}
+
+<h2>Register to get started!</h2>
+<div class="well form-horizontal">
+	@Html.ValidationSummary(false)
+	
+	@using(Html.BeginForm())
+	{
+		<fieldset>
+			@Html.HiddenFor(x => x.ReturnUrl)
+			<div class="control-group">
+				@Html.LabelFor(x => x.Email)
+				@Html.TextBoxWithMaxLengthFor(x => x.Email)
+				<span class="message-box">
+					<span class="description">@Html.DescriptionFor(x => x.Email)</span>
+					<span class="validation">@Html.ValidationMessageFor(x => x.Email)</span>
+				</span>
+			</div>
+			<div class="control-group">
+				@Html.LabelFor(x => x.Username)
+				@Html.TextBoxWithMaxLengthFor(x => x.Username)
+				<span class="message-box">
+					<span class="description">@Html.DescriptionFor(x => x.Username)</span>
+					<span class="validation">@Html.ValidationMessageFor(x => x.Username)</span>
+					<span class="username-valid hide">Username available!</span>
+					<span class="username-invalid hide">Username taken. Please try a different one.</span>
+				</span>
+			</div>
+			<div class="control-group">
+				@Html.LabelFor(x => x.Password)
+				@Html.PasswordWithMaxLengthFor(x => x.Password)
+				<span class="message-box">
+					<span class="description">@Html.DescriptionFor(x => x.Password)</span>
+					<span class="validation">@Html.ValidationMessageFor(x => x.Password)</span>
+				</span>
+			</div>
+			<div class="control-group">
+				@Html.LabelFor(x => x.PasswordConfirm)
+				@Html.PasswordWithMaxLengthFor(x => x.PasswordConfirm)
+				<span class="message-box">
+					<span class="description">@Html.DescriptionFor(x => x.PasswordConfirm)</span>
+					<span class="validation">@Html.ValidationMessageFor(x => x.PasswordConfirm)</span>
+				</span>
+			</div>
+			<button type="submit" class="btn btn-primary">Join Now</button>
+			<div class="control-group">
+				Already a member? <a href="@Url.Account().Login()">Sign in</a>
+			</div>
+			<div class="control-group">
+				* Required
+			</div>
+		</fieldset>
+	}
+</div>

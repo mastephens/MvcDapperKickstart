@@ -1,0 +1,180 @@
+﻿// Twitter Bootstrap Bundle Reference
+// @reference "../_lib/bootstrap";
+
+// Quad Framework Shared Elements
+// ------------------------------
+
+@import "variables.less";
+@import "mixins.less";
+
+// Angular ng-cloak support
+// ------------------------
+
+[ng-cloak], .ng-cloak {
+  display: none;
+}
+
+// Bootstrap 2.1.0 Overrides and Extensions
+// ----------------------------------------
+
+// In Bootstrap 2.1.0 the inverse style of the navbar is not specific enough to use @navbarInverseBrandColor correctly when .brand is a link
+.navbar-inverse {
+  a.brand {
+    color: @navbarInverseBrandColor;
+    &:hover {
+      color: @navbarInverseBrandColor;
+    }
+  }
+}
+
+/* Main Layout
+// ---------*/
+
+body > footer {
+	padding: @baseLineHeight 0;
+}
+
+.navbar .breadcrumb {
+	font-size: @baseFontSize;
+	font-weight: normal;
+	line-height: @baseFontSize;
+	margin: 0;
+	padding: 0;
+	background: none;
+	border: none;
+	box-shadow: none;
+	margin-top: 44px;
+	position: absolute;
+}
+
+.navbar .breadcrumb ul {
+	margin: 0;
+}
+
+.navbar .breadcrumb li {
+	text-shadow: none;
+}
+
+.page-header-search {
+	.clearfix();
+	padding-bottom: 0;
+
+	h1, h2, h3, h4, h5, h6 {
+		float: left;
+	}
+
+	.form-search {
+		float: right;
+	}
+}
+
+/* Horizontal Definition Lists (introduced in later bootstrap versions)
+// ------------------------------------------------------------------*/
+
+.dl-horizontal {
+	line-height: 1.3em;
+	margin: 0;
+}
+
+.dl-horizontal dt {
+	float: left;
+	clear: left;
+	display: block;
+	font-weight: bold;
+	margin-right: 0.6em;
+}
+
+.dl-horizontal dd {
+	font-weight: normal;
+}
+
+/* Filter-Settings Definition Lists (introduced in later bootstrap versions)
+// ------------------------------------------------------------------*/
+
+.dl-filter-settings {
+	margin-top: 0;
+}
+
+.dl-filter-settings dt {
+	padding-top: 5px;
+}
+
+.dl-filter-settings dd {
+	margin: 0 0 10px 0;
+	padding: 0;
+}
+
+.dl-filter-settings dd li {
+	padding-top: 1px;
+}
+
+.dl-filter-settings dd .btn-mini {
+	.buttonBackground(@btnDangerBackground, @btnDangerBackgroundHighlight);
+	float: right;
+	padding: 0 1px 1px 1px;
+	margin-top: 2px;
+}
+
+/* Forms 
+// ---*/ 
+
+.form-header {
+	font-size: 24px;
+	line-height: @baseLineHeight * 2;
+	border: 1px solid #ddd;
+	border-width: 0 0 1px 0;
+	padding: 0 20px;
+	margin-bottom: @baseLineHeight * 2;
+	small {
+		font-size: 18px;
+	}
+}
+
+.form-header form,
+.form-actions form {
+	display: inline;
+}
+
+.form-label-optional {
+	.checkbox {
+		vertical-align: top;
+		margin-left: 5px;
+		color: @grayLight;
+	}
+}
+
+.checkbox + .form-contextual {
+	padding-left: 18px;
+}
+
+label.checkbox .help-inline {
+	vertical-align: inherit;
+	color: @grayLight;
+}
+
+h1 + .help-block,
+h2 + .help-block,
+h3 + .help-block,
+h4 + .help-block,
+h5 + .help-block,
+h6 + .help-block {
+	margin: 0;
+}
+
+// jQuery UI Overides
+// ------------------
+
+.control-group .slider {
+	padding-top: 5px;
+}
+.slider-labeled .ui-slider-horizontal {
+	float: left;
+	height: 12px;
+	width: 75%;
+}
+
+.slider-labeled .label {
+	position: relative;
+	top: -4px;
+	left: 12px;
+}

@@ -1,6 +1,23 @@
-# Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
-bin
-obj
-
-# mstest test results
-TestResults
+[Oo]bj/
+[Bb]in/
+*.user
+target/
+*ReSharper*
+*resharper*
+*.suo
+*.cache
+Thumbs.db
+*.bak
+*.cache
+*.log
+*.log.*
+log.txt
+*.swp
+*.docstates
+*.dotCover
+*.DotSettings
+_compareTemp
+_notes
+aspnet_client
+httpd.parse.errors
+packages/

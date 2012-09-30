@@ -1,0 +1,20 @@
+﻿@{
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+
+	try
+	{
+		Bundles.Reference("~/Content/js/Admin/" + ViewContext.RouteData.Values["controller"]);
+	}
+	catch (Exception)
+	{
+		// Means the location does not exist yet
+	}
+	try
+	{
+		Bundles.Reference("~/Content/less/Admin/" + ViewContext.RouteData.Values["controller"]);
+	}
+	catch (Exception)
+	{
+		// Means the location does not exist yet
+	}
+}

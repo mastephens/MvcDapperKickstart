@@ -1,0 +1,6 @@
+﻿global.js
+rating.js
+
+[references]
+~/Content/js/_lib/jquery
+~/Content/js/_lib/bootstrap

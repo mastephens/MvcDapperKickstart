@@ -1,0 +1,5 @@
+﻿@using MvcKickstart.Infrastructure
+@if (TempData[ViewDataConstants.Notification] != null) {
+	<br /><br />
+	@Html.Raw(TempData[ViewDataConstants.Notification])
+}

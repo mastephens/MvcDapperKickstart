@@ -1,0 +1,23 @@
+﻿@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+
+	if (ViewContext.RouteData.Values["area"] == null && !ViewContext.IsChildAction)
+	{
+		try
+		{
+			Bundles.Reference("~/Content/js/" + ViewContext.RouteData.Values["controller"] + "/" + ViewContext.RouteData.Values["action"] + ".js");
+		}
+		catch (ArgumentException)
+		{
+			// Means the location does not exist yet
+		}
+		try
+		{
+			Bundles.Reference("~/Content/less/" + ViewContext.RouteData.Values["controller"]);
+		}
+		catch (ArgumentException)
+		{
+			// Means the location does not exist yet
+		}
+	}
+}
