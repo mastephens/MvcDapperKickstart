@@ -18,6 +18,13 @@ Conventions
 * All actions can have their own js and less file.  These files will automatically be loaded via _ViewStart.cshtml.  If the files do not exist, the site will not fail.  The default convention is to place a file named the same as the action, inside a folder named the same as the controller.  
     * Eg. ~/content/js/Account/Login.js and ~/content/js/Admin/Home/Index.js
     * Similarly: ~/content/less/Account/Register.less and ~/content/less/Admin/Users/Index.less
+* All data querying should be done inside the the following using block. This allows us to adjust RavenDb cache durations dynamically.
+```csharp
+using (RavenSession.GetCachingContext()) {
+    // TODO: Add your query code here
+}
+```
+* The site takes advantage of the mythical donut caching technique via the [MVC donut caching library](http://mvcdonutcaching.codeplex.com/).  Content should be cached via the *ConfiguredOutputCache* attribute.  The idea with that attribute is that the cache duration can be controlled via an admin screen. 
 
 Additional Information
 ----------------------
