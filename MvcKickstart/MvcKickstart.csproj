@@ -290,6 +290,7 @@
     <Content Include="Content\less\_lib\bootstrap\2.1.0\img\glyphicons-halflings-white.png" />
     <Content Include="Content\less\_lib\bootstrap\2.1.0\img\glyphicons-halflings.png" />
     <Content Include="Content\less\_lib\bootstrap\bundle.txt" />
+    <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
     <Content Include="Web.Release.config">
