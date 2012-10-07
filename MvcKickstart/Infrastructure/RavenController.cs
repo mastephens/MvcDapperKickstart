@@ -58,6 +58,16 @@ namespace MvcKickstart.Infrastructure
 			base.OnAuthorization(filterContext);
 		}
 
+		protected override void Execute(System.Web.Routing.RequestContext requestContext)
+		{
+			base.Execute(requestContext);
+			// If this is an ajax request, clear the tempdata notification.
+			if (requestContext.HttpContext.Request.IsAjaxRequest())
+			{
+				TempData[ViewDataConstants.Notification] = null;
+			}
+		}
+
 		public new JsonNetResult Json(object data)
 		{
 			return new JsonNetResult { Data = data };

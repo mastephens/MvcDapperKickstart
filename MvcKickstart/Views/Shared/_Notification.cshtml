@@ -1,5 +1,1 @@
-﻿@using MvcKickstart.Infrastructure
-@if (TempData[ViewDataConstants.Notification] != null) {
-	<br /><br />
-	@Html.Raw(TempData[ViewDataConstants.Notification])
-}
+﻿@Html.Notification(TempData[ViewDataConstants.Notification] as Notification)

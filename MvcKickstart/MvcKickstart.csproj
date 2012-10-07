@@ -221,6 +221,8 @@
     <Compile Include="Infrastructure\MetricStopwatch.cs" />
     <Compile Include="Infrastructure\MetricTracker.cs" />
     <Compile Include="Infrastructure\Modules\ProfiledUrlRoutingModule.cs" />
+    <Compile Include="Infrastructure\Notification.cs" />
+    <Compile Include="Infrastructure\NotificationType.cs" />
     <Compile Include="Infrastructure\RavenController.cs" />
     <Compile Include="Infrastructure\StructureMapDependencyResolver.cs" />
     <Compile Include="Infrastructure\StructureMapSignalrDependencyResolver.cs" />
