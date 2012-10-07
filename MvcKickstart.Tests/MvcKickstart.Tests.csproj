@@ -156,6 +156,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Routing\AccountTests.cs" />
     <Compile Include="Routing\Admin\HomeTests.cs" />
+    <Compile Include="Routing\ErrorTests.cs" />
     <Compile Include="Routing\HomeTests.cs" />
     <Compile Include="Routing\RouteTestBase.cs" />
     <Compile Include="TestBase.cs" />
