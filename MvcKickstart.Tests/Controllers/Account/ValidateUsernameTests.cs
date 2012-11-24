@@ -9,9 +9,9 @@ namespace MvcKickstart.Tests.Controllers.Account
 	public class ValidateUsernameTests : ControllerTestBase
 	{
 		[SetUp]
-		public override void SetUp()
+		public override void Setup()
 		{
-			base.SetUp();
+			base.Setup();
 
 			Session.Store(Builder<User>.CreateNew()
 				              .With(x => x.Id = null)

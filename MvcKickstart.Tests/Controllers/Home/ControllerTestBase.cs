@@ -9,9 +9,9 @@ namespace MvcKickstart.Tests.Controllers.Home
 		protected HomeController Controller { get; set; }
 
 		[SetUp]
-		public override void SetUp()
+		public override void Setup()
 		{
-			base.SetUp();
+			base.Setup();
 
 			Controller = new HomeController(Session, Metrics);
 			ControllerUtilities.SetupControllerContext(Controller);

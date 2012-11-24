@@ -17,9 +17,9 @@ namespace MvcKickstart.Tests.Controllers.Account
 
 
 		[SetUp]
-		public override void SetUp()
+		public override void Setup()
 		{
-			base.SetUp();
+			base.Setup();
 
 			AuthenticationService = new Mock<IUserAuthenticationService>();
 			AuthenticationService.Setup(x => x.ReservedUsernames).Returns(new[] { "admin" });

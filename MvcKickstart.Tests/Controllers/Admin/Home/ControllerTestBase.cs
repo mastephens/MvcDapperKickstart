@@ -1,5 +1,4 @@
 ﻿using FizzWare.NBuilder;
-using MvcKickstart.Areas.Admin;
 using MvcKickstart.Areas.Admin.Controllers;
 using MvcKickstart.Models.Users;
 using MvcKickstart.Tests.Utilities;
@@ -12,16 +11,10 @@ namespace MvcKickstart.Tests.Controllers.Admin.Home
 		protected static User User { get; private set; }
 		protected HomeController Controller { get; set; }
 
-		[TestFixtureSetUp]
-		public void TestFixtureSetUp()
-		{
-			AdminAreaRegistration.CreateMappings();
-		}
-
 		[SetUp]
-		public override void SetUp()
+		public override void Setup()
 		{
-			base.SetUp();
+			base.Setup();
 
 			User = Builder<User>.CreateNew()
 				.With(x => x.Id = null)

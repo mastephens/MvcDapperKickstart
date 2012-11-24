@@ -354,6 +354,7 @@
   <ItemGroup>
     <Content Include="Web.Review.config">
       <DependentUpon>Web.config</DependentUpon>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>

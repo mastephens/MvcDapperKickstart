@@ -22,7 +22,7 @@ namespace MvcKickstart.Tests
 		public ICacheClient Cache { get; set; }
 
 		[TestFixtureSetUp]
-		public void SetupFixture()
+		public virtual void SetupFixture()
 		{
 			HttpContext.Current = null; //This needs to be cleared because EmbeddableDocumentStore will try to set a virtual directory via HttpContext.Current.Request.ApplicationPath, which is null
 			Cache = new MemoryCacheClient();
@@ -33,7 +33,7 @@ namespace MvcKickstart.Tests
 		}
 
 		[SetUp]
-		public virtual void SetUp()
+		public virtual void Setup()
 		{
 			MetricsMock = new Mock<IMetricTracker>();
 			Metrics = MetricsMock.Object;
