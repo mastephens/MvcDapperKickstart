@@ -15,16 +15,22 @@ namespace MvcKickstart.Tests
 {
 	public abstract class TestBase
 	{
-		public IDocumentStore Store { get; set; }
-		public IDocumentSession Session { get; set; }
-		public IMetricTracker Metrics { get; set; }
-		public Mock<IMetricTracker> MetricsMock { get; set; }
-		public ICacheClient Cache { get; set; }
+		protected IDocumentStore Store { get; set; }
+		protected IDocumentSession Session { get; set; }
+		protected IMetricTracker Metrics { get; set; }
+		protected Mock<IMetricTracker> MetricsMock { get; set; }
+		protected ICacheClient Cache { get; set; }
 
 		[TestFixtureSetUp]
 		public virtual void SetupFixture()
 		{
 			HttpContext.Current = null; //This needs to be cleared because EmbeddableDocumentStore will try to set a virtual directory via HttpContext.Current.Request.ApplicationPath, which is null
+			Store = new EmbeddableDocumentStore { RunInMemory = true }.Initialize();
+			((DocumentStore) Store).RegisterListener(new ForceNonStaleQueryListener());
+			IndexCreation.CreateIndexes(typeof(User).Assembly, Store);
+			StructureMap.ObjectFactory.Inject(typeof(IDocumentStore), Store);
+			RavenConfig.Bootstrap();
+
 			Cache = new MemoryCacheClient();
 			StructureMap.ObjectFactory.Inject(typeof(ICacheClient), Cache);
 			AutomapperConfig.CreateMappings();
@@ -38,19 +44,18 @@ namespace MvcKickstart.Tests
 			MetricsMock = new Mock<IMetricTracker>();
 			Metrics = MetricsMock.Object;
 
-			HttpContext.Current = null; //This needs to be cleared because EmbeddableDocumentStore will try to set a virtual directory via HttpContext.Current.Request.ApplicationPath, which is null
-			Store = new EmbeddableDocumentStore { RunInMemory = true }.Initialize();
-			((DocumentStore) Store).RegisterListener(new ForceNonStaleQueryListener());
-			IndexCreation.CreateIndexes(typeof(User).Assembly, Store);
 			Session = Store.OpenSession();
-
-			StructureMap.ObjectFactory.Inject(typeof(IDocumentStore), Store);
-			StructureMap.ObjectFactory.Inject(typeof(IDocumentSession), Store.OpenSession());
-			RavenConfig.Bootstrap();
+			StructureMap.ObjectFactory.Inject(typeof(IDocumentSession), Session);
 		}
 
 		[TearDown]
 		public virtual void TearDown()
+		{
+			Session.Dispose();
+		}
+
+		[TestFixtureTearDown]
+		public virtual void TearDownFixture()
 		{
 			Store.Dispose();
 		}

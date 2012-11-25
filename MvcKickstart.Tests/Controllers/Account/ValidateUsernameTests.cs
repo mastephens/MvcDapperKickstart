@@ -8,22 +8,24 @@ namespace MvcKickstart.Tests.Controllers.Account
 {
 	public class ValidateUsernameTests : ControllerTestBase
 	{
-		[SetUp]
-		public override void Setup()
+		public override void SetupFixture()
 		{
-			base.Setup();
+			base.SetupFixture();
 
-			Session.Store(Builder<User>.CreateNew()
-				              .With(x => x.Id = null)
-							  .With(x => x.Username = "TestUser")
-							  .With(x => x.IsDeleted = false)
-				              .Build());
-			Session.Store(Builder<User>.CreateNew()
-				              .With(x => x.Id = null)
-							  .With(x => x.Username = "TestUserDeleted")
-							  .With(x => x.IsDeleted = true)
-				              .Build());
-			Session.SaveChanges();
+			using (var session = Store.OpenSession())
+			{
+				session.Store(Builder<User>.CreateNew()
+								  .With(x => x.Id = null)
+								  .With(x => x.Username = "TestUser")
+								  .With(x => x.IsDeleted = false)
+								  .Build());
+				session.Store(Builder<User>.CreateNew()
+								  .With(x => x.Id = null)
+								  .With(x => x.Username = "TestUserDeleted")
+								  .With(x => x.IsDeleted = true)
+								  .Build());
+				session.SaveChanges();
+			}
 		}
 
 		[Test]

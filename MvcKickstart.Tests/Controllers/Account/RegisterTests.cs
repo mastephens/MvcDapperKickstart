@@ -1,4 +1,5 @@
 ﻿using System.Web.Mvc;
+using FizzWare.NBuilder.Generators;
 using MvcKickstart.Tests.Utilities;
 using MvcKickstart.ViewModels.Account;
 using NUnit.Framework;
@@ -28,7 +29,8 @@ namespace MvcKickstart.Tests.Controllers.Account
 		{
 			var model = new Register
 			{
-				Username = "user1",
+				Username = GetRandom.String(20),
+				Email = GetRandom.Email(),
 				Password = "password1"
 			};
 
@@ -45,6 +47,7 @@ namespace MvcKickstart.Tests.Controllers.Account
 			var model = new Register
 			{
 				Username = "user1",
+				Email = GetRandom.Email(),
 				Password = "password1"
 			};
 			Controller.ModelState.AddModelError("Fake error", "error");
@@ -70,6 +73,7 @@ namespace MvcKickstart.Tests.Controllers.Account
 			var model = new Register
 			{
 				Username = "admin",
+				Email = GetRandom.Email(),
 				Password = "password1"
 			};
 
@@ -86,6 +90,7 @@ namespace MvcKickstart.Tests.Controllers.Account
 			var model = new Register
 			{
 				Username = User.Username,
+				Email = GetRandom.Email(),
 				Password = "password1"
 			};
 
@@ -101,7 +106,7 @@ namespace MvcKickstart.Tests.Controllers.Account
 		{
 			var model = new Register
 			{
-				Username = "user1",
+				Username = GetRandom.String(20),
 				Email = User.Email,
 				Password = "password1",
 				PasswordConfirm = "password1"
@@ -119,7 +124,8 @@ namespace MvcKickstart.Tests.Controllers.Account
 		{
 			var model = new Register
 			{
-				Username = "user1",
+				Username = GetRandom.String(20),
+				Email = GetRandom.Email(),
 				Password = "password1",
 				ReturnUrl = "/home/index"
 			};
@@ -137,7 +143,8 @@ namespace MvcKickstart.Tests.Controllers.Account
 		{
 			var model = new Register
 			{
-				Username = "user1",
+				Username = GetRandom.String(20),
+				Email = GetRandom.Email(),
 				Password = "password1",
 				ReturnUrl = "http://google.com"
 			};

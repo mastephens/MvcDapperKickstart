@@ -1,6 +1,5 @@
 ﻿using MvcKickstart.Controllers;
 using MvcKickstart.Tests.Utilities;
-using NUnit.Framework;
 
 namespace MvcKickstart.Tests.Controllers.Home
 {
@@ -8,7 +7,6 @@ namespace MvcKickstart.Tests.Controllers.Home
 	{
 		protected HomeController Controller { get; set; }
 
-		[SetUp]
 		public override void Setup()
 		{
 			base.Setup();
