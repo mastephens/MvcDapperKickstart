@@ -11,7 +11,7 @@ namespace MvcKickstart
 			routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
 			// Note: All routes should be handled by the RouteAttribute on each action
-			routes.MapAttributeRoutes();
+			routes.MapAttributeRoutes(config => config.AddRoutesFromAssemblyOf<RouteConfig>());
 		}
 	}
 }
