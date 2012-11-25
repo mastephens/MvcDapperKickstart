@@ -53,6 +53,7 @@ namespace MvcKickstart.Tests.Utilities
 			request.Setup(x => x.Headers).Returns(new NameValueCollection());
 			var response = new Mock<HttpResponseBase>();
 			response.Setup(x => x.Cookies).Returns(cookies);
+			response.Setup(x => x.SetCookie(It.IsAny<HttpCookie>())).Callback<HttpCookie>(x => cookies.Add(x));
 			response.Setup(x => x.ApplyAppPathModifier(It.IsAny<string>())).Returns((string virtualPath) => virtualPath);
 			var server = new Mock<HttpServerUtilityBase>();
 
