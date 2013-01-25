@@ -2,10 +2,6 @@
 
 set /p projectName="New Project Name: " %=%
 
-::@echo %projectName%
-
-::pause
-
 @echo Renaming 'MvcKickstart' to '%projectName%'
 cd ../MvcKickstart
 call:renameFiles
@@ -26,14 +22,6 @@ ren MvcKickstart.Tests %projectName%.Tests
 @echo.
 @echo Done and done!!
 pause
-
-::rename *MvcKickstart* *%projectName%*
-::cd MvcKickstart
-::call:renameFiles
-::cd ../MvcKickstart.Tests
-::call:renameFiles
-::cd ../
-::call:renameFiles
 
 ::pause
 goto:eof
