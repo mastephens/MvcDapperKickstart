@@ -35,3 +35,8 @@ Additional Information
     * Asset bundling and minification is handled by [cassette](http://getcassette.net/).  The built in asp.net bundler sucks in comparison.
     * This template uses [bootstrap](http://twitter.github.com/bootstrap/) for a UI starting point. Enjoy...
     * I use various parts of [Service Stack](http://www.servicestack.net/) throughout this project.  Service Stack is to asp.net projects as Resharper is to Visual Studio.
+
+Renaming Utility
+----------------
+The Rename Utility (/__Rename Utility/rename.bat) can be used to rename the project from 'MvcKickstart' to whatever you need it named. 
+When you run that file, it will prompt you for the new name. Once the name is entered, the utility will run through all the files to replace any occurrances of 'MvcKickstart' (primarily the namespaces) to the name you entered. It will also rename the project files/folders, solution file, and update the solution file to reference the new project names.
