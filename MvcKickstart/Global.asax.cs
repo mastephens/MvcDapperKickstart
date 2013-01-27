@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
+using MvcKickstart.Infrastructure;
 using StackExchange.Profiling;
 using StructureMap;
 
@@ -45,15 +46,25 @@ namespace MvcKickstart
 
 		public override string GetVaryByCustomString(HttpContext context, string custom)
 		{
-			if (custom == "user")
+			var customs = custom.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries);
+			var cacheKey = string.Empty;
+			foreach (var type in customs)
 			{
-				if (context.User.Identity.IsAuthenticated)
-					return context.User.Identity.Name;
-
-				// Anonymous users should share the same cache. 
-				return string.Empty;
+				switch (type)
+				{
+					case VaryByCustom.User:
+						cacheKey += "ByUser_" + (context.User.Identity.IsAuthenticated ? context.User.Identity.Name : string.Empty);
+						break;
+					case VaryByCustom.UserIsAuthenticated:
+						cacheKey += "ByUserIsAuthenticated_" + (context.User.Identity.IsAuthenticated ? "user" : "anon");
+						break;
+					case VaryByCustom.Ajax:
+						var requestBase = new HttpRequestWrapper(context.Request);
+						cacheKey += "ByAjax_" + requestBase.IsAjaxRequest();
+						break;
+				}
 			}
-			return base.GetVaryByCustomString(context, custom);
+			return cacheKey;
 		}
 	}
 }

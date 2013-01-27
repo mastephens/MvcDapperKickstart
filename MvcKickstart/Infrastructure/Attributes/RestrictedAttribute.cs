@@ -57,10 +57,7 @@ namespace MvcKickstart.Infrastructure.Attributes
 				User userObject;
 				if (httpContext.User.Identity.IsAuthenticated && httpContext.User.Identity.AuthenticationType == "Forms")
 				{
-					using (RavenSession.GetCachingContext())
-					{
-						userObject = RavenSession.Query<User>().Customize(x => x.WaitForNonStaleResults()).SingleOrDefault(x => x.Username == httpContext.User.Identity.Name);
-					}
+					userObject = RavenSession.Query<User>().Customize(x => x.WaitForNonStaleResults()).SingleOrDefault(x => x.Username == httpContext.User.Identity.Name);
 				}
 				else
 				{

@@ -43,10 +43,7 @@ namespace MvcKickstart.Infrastructure
 			User user;
 			if (filterContext.HttpContext.User.Identity.IsAuthenticated && filterContext.HttpContext.User.Identity.AuthenticationType == "Forms")
 			{
-				using (RavenSession.GetCachingContext())
-				{
-					user = RavenSession.Query<User>().Customize(x => x.WaitForNonStaleResults()).SingleOrDefault(x => x.Username == filterContext.HttpContext.User.Identity.Name);
-				}
+				user = RavenSession.Query<User>().Customize(x => x.WaitForNonStaleResults()).SingleOrDefault(x => x.Username == filterContext.HttpContext.User.Identity.Name);
 			}
 			else
 			{

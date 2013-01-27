@@ -211,7 +211,6 @@
     <Compile Include="Infrastructure\DocumentStoreListener.cs" />
     <Compile Include="Infrastructure\Extensions\HtmlHelperExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\UrlHelperAdminUrls.cs" />
-    <Compile Include="Infrastructure\Extensions\DocumentSessionExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\EnumExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\StringExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\UrlHelperExtensions.cs" />
@@ -232,6 +231,7 @@
     <Compile Include="Infrastructure\StructureMapDependencyResolver.cs" />
     <Compile Include="Infrastructure\StructureMapSignalrDependencyResolver.cs" />
     <Compile Include="Infrastructure\UserPrincipal.cs" />
+    <Compile Include="Infrastructure\VaryByCustom.cs" />
     <Compile Include="Infrastructure\ViewDataConstants.cs" />
     <Compile Include="Models\Users\PasswordRetrieval.cs" />
     <Compile Include="Models\Users\User.cs" />
@@ -292,7 +292,9 @@
     <Content Include="Content\less\_lib\bootstrap\bundle.txt" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>

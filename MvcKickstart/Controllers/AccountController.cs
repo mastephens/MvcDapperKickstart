@@ -30,7 +30,7 @@ namespace MvcKickstart.Controllers
 		}
 
 		[GET("account/login", RouteName = "Account_Login")]
-		[ConfiguredOutputCache(VaryByParam = "returnUrl")]
+		[ConfiguredOutputCache(VaryByParam = "returnUrl", VaryByCustom = VaryByCustom.UserIsAuthenticated)]
 		public ActionResult Login(string returnUrl)
 		{
 			if (User.Identity.IsAuthenticated)
@@ -47,18 +47,15 @@ namespace MvcKickstart.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-				using (RavenSession.GetCachingContext())
+				var user = RavenSession.Query<User>().SingleOrDefault(x => !x.IsDeleted && x.Username == model.Username && x.Password == model.Password.ToSHAHash());
+				if (user != null)
 				{
-					var user = RavenSession.Query<User>().SingleOrDefault(x => !x.IsDeleted && x.Username == model.Username && x.Password == model.Password.ToSHAHash());
-					if (user != null)
-					{
-						_authenticationService.SetLoginCookie(user, model.RememberMe);
-						Metrics.Increment(Metric.Users_SuccessfulLogin);
+					_authenticationService.SetLoginCookie(user, model.RememberMe);
+					Metrics.Increment(Metric.Users_SuccessfulLogin);
 
-						if (Url.IsLocalUrl(model.ReturnUrl))
-							return Redirect(model.ReturnUrl);
-						return RedirectToAction("Index", "Home");
-					}
+					if (Url.IsLocalUrl(model.ReturnUrl))
+						return Redirect(model.ReturnUrl);
+					return RedirectToAction("Index", "Home");
 				}
 				ModelState.AddModelError("InvalidCredentials", string.Format("The user name or password provided is incorrect. Did you <a href='{0}'>forget your password?</a>", Url.Account().ForgotPassword()));
 			}
@@ -83,7 +80,7 @@ namespace MvcKickstart.Controllers
 		#region Register
 
 		[GET("account/register", RouteName = "Account_Register")]
-		[ConfiguredOutputCache(VaryByParam = "returnUrl")]
+		[ConfiguredOutputCache(VaryByParam = "returnUrl", VaryByCustom = VaryByCustom.UserIsAuthenticated)]
 		public ActionResult Register(string returnUrl)
 		{
 			if (User.Identity.IsAuthenticated)
@@ -103,21 +100,18 @@ namespace MvcKickstart.Controllers
 			}
 			else
 			{
-				using (RavenSession.GetCachingContext())
+				var existingUsername = RavenSession.Query<User>().SingleOrDefault(x => x.Username == model.Username && !x.IsDeleted);
+				if (existingUsername != null)
 				{
-					var existingUsername = RavenSession.Query<User>().SingleOrDefault(x => x.Username == model.Username && !x.IsDeleted);
-					if (existingUsername != null)
+					ModelState.AddModelError("Duplicate username", "Username is already in use");
+				}
+				else
+				{
+					var existingEmail = RavenSession.Query<User>().SingleOrDefault(x => x.Email == model.Email && !x.IsDeleted);
+					if (existingEmail != null)
 					{
-						ModelState.AddModelError("Duplicate username", "Username is already in use");
-					}
-					else
-					{
-						var existingEmail = RavenSession.Query<User>().SingleOrDefault(x => x.Email == model.Email && !x.IsDeleted);
-						if (existingEmail != null)
-						{
-							ModelState.AddModelError("Duplicate email", "A user with that email exists");
-						}					
-					}
+						ModelState.AddModelError("Duplicate email", "A user with that email exists");
+					}					
 				}
 			}
 
@@ -149,11 +143,8 @@ namespace MvcKickstart.Controllers
 			if (_authenticationService.ReservedUsernames.Any(x => username.Equals(x, StringComparison.OrdinalIgnoreCase)))
 				return Json(false);
 
-			using (RavenSession.GetCachingContext())
-			{
-				var user = RavenSession.Query<User>().SingleOrDefault(x => x.Username == username && !x.IsDeleted);
-				return Json(user == null);
-			}
+			var user = RavenSession.Query<User>().SingleOrDefault(x => x.Username == username && !x.IsDeleted);
+			return Json(user == null);
 		}
 		#endregion
 
@@ -171,26 +162,23 @@ namespace MvcKickstart.Controllers
 			if (ModelState.IsValid)
 			{
 				//get user by email address
-				using (RavenSession.GetCachingContext())
+				var user = RavenSession.Query<User>().SingleOrDefault(x => x.Email == model.Email && !x.IsDeleted);
+				
+				//if no matching user, error
+				if (user == null)
 				{
-					var user = RavenSession.Query<User>().SingleOrDefault(x => x.Email == model.Email && !x.IsDeleted);
-					
-					//if no matching user, error
-					if (user == null)
-					{
-						ModelState.AddModelError("Invalid User Email", "A user could not be found with that email address");
-						return View(model);
-					}
-
-					// Create token and send email
-					var token = new PasswordRetrieval(user, Guid.NewGuid());
-					RavenSession.Store(token);
-					RavenSession.SaveChanges();
-					Metrics.Increment(Metric.Users_SendPasswordResetEmail);
-
-					// TODO: Send email with password token
-					return View("ForgotPasswordConfirmation");
+					ModelState.AddModelError("Invalid User Email", "A user could not be found with that email address");
+					return View(model);
 				}
+
+				// Create token and send email
+				var token = new PasswordRetrieval(user, Guid.NewGuid());
+				RavenSession.Store(token);
+				RavenSession.SaveChanges();
+				Metrics.Increment(Metric.Users_SendPasswordResetEmail);
+
+				// TODO: Send email with password token
+				return View("ForgotPasswordConfirmation");
 			}
 			return View(model);
 		}
@@ -200,15 +188,12 @@ namespace MvcKickstart.Controllers
 		{
 			var model = new ResetPassword { Token = token };
 
-			using (RavenSession.GetCachingContext())
-			{
-				model.Data = RavenSession.Query<PasswordRetrieval>().SingleOrDefault(x => x.Token == token);
+			model.Data = RavenSession.Query<PasswordRetrieval>().SingleOrDefault(x => x.Token == token);
 
-				if (model.Data == null) 
-					return Redirect(Url.Home().Index());
+			if (model.Data == null) 
+				return Redirect(Url.Home().Index());
 
-				return View(model);
-			}
+			return View(model);
 		}
 
 		[POST("account/reset-password/{token}")]
@@ -216,20 +201,17 @@ namespace MvcKickstart.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-				using (RavenSession.GetCachingContext())
-				{
-					model.Data = RavenSession.Query<PasswordRetrieval>().SingleOrDefault(x => x.Token == model.Token);
+				model.Data = RavenSession.Query<PasswordRetrieval>().SingleOrDefault(x => x.Token == model.Token);
 
-					if (model.Data == null)
-						return Redirect(Url.Home().Index());
+				if (model.Data == null)
+					return Redirect(Url.Home().Index());
 
-					User.UserObject.Password = model.Password.ToSHAHash();
-					RavenSession.Store(User.UserObject);
-					RavenSession.Delete(model.Data);
-					RavenSession.SaveChanges();
+				User.UserObject.Password = model.Password.ToSHAHash();
+				RavenSession.Store(User.UserObject);
+				RavenSession.Delete(model.Data);
+				RavenSession.SaveChanges();
 
-					Metrics.Increment(Metric.Users_ResetPassword);
-				}
+				Metrics.Increment(Metric.Users_ResetPassword);
 				//show confirmation
 				return View("ResetPasswordConfirmation");
 			}

@@ -45,7 +45,7 @@ namespace MvcKickstart.Controllers
 		}
 
 		[Route("__partial__Home_UsernameOrLogin")]
-		[ConfiguredOutputCache(VaryByCustom = "user")]
+		[ConfiguredOutputCache(VaryByCustom = VaryByCustom.User)]
 		public ActionResult UsernameOrLogin()
 		{
 			// This route could probably also go in a UsersController if it exists
