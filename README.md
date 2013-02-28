@@ -1,7 +1,8 @@
-MvcKickstart
+MvcDapperKickstart
 ===========
 
 A base site template I use to start a new asp.net mvc project.  This is a .net 4.5, asp.net mvc 4 project.
+This base site template uses Dapper as a persistance tool.
 
 Overview
 --------
