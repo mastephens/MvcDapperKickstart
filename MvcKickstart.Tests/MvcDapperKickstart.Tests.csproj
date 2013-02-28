@@ -149,9 +149,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MvcKickstart\MvcKickstart.csproj">
+    <ProjectReference Include="..\MvcKickstart\MvcDapperKickstart.csproj">
       <Project>{29fd2c9a-a11f-4495-9799-e50866c89878}</Project>
-      <Name>MvcKickstart</Name>
+      <Name>MvcDapperKickstart</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

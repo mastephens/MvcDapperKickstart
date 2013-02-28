@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -8,15 +9,16 @@ using AttributeRouting.Web.Mvc;
 using MvcKickstart.Areas.Admin.ViewModels.Home;
 using MvcKickstart.Infrastructure;
 using MvcKickstart.Infrastructure.Attributes;
-using Raven.Client;
+using ServiceStack.CacheAccess;
 
 namespace MvcKickstart.Areas.Admin.Controllers
 {
 	[RouteArea("admin")]
 	[Restricted(RequireAdmin = true)]
-	public class HomeController : RavenController
+	public class HomeController : DapperController
     {
-		public HomeController(IDocumentSession session, IMetricTracker metrics) : base(session, metrics)
+        public HomeController(IDbConnection dbConnection, ICacheClient cacheClient)
+            : base(dbConnection, cacheClient)
 		{
 		}
 

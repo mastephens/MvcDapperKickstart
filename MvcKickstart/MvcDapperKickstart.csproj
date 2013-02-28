@@ -71,11 +71,20 @@
     <Reference Include="Cassette.Views">
       <HintPath>..\packages\Cassette.Views.2.1.0-alpha2\lib\net40\Cassette.Views.dll</HintPath>
     </Reference>
+    <Reference Include="Dapper">
+      <HintPath>..\packages\Dapper.1.12.1\lib\net40\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper.Rainbow">
+      <HintPath>..\packages\Dapper.Rainbow.0.1.2\lib\net40\Dapper.Rainbow.dll</HintPath>
+    </Reference>
     <Reference Include="DevTrends.MvcDonutCaching">
       <HintPath>..\packages\MvcDonutCaching.1.2.1\lib\net40\DevTrends.MvcDonutCaching.dll</HintPath>
     </Reference>
     <Reference Include="dotless.ClientOnly">
       <HintPath>..\packages\DotlessClientOnly.1.3.1.0\lib\dotless.ClientOnly.dll</HintPath>
+    </Reference>
+    <Reference Include="FluentScheduler">
+      <HintPath>..\packages\FluentScheduler.1.1.29\lib\FluentScheduler.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -88,20 +97,8 @@
     <Reference Include="MiniProfiler">
       <HintPath>..\packages\MiniProfiler.2.0.2\lib\net40\MiniProfiler.dll</HintPath>
     </Reference>
-    <Reference Include="MvcMiniProfiler.RavenDb, Version=2.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MiniProfiler.RavenDb.2.2.0\lib\MvcMiniProfiler.RavenDb.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.4.5.10\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RavenDB.Client.2.0.2230\lib\net40\Raven.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Raven.Client.Lightweight, Version=2.0.0.0, Culture=neutral, PublicKeyToken=37f41c7f99471593, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\RavenDB.Client.2.0.2230\lib\net40\Raven.Client.Lightweight.dll</HintPath>
     </Reference>
     <Reference Include="ServiceStack.Common, Version=3.9.33.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -186,15 +183,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\AutomapperConfig.cs" />
+    <Compile Include="App_Start\DapperConfig.cs" />
     <Compile Include="App_Start\IocConfig.cs" />
     <Compile Include="App_Start\LoggingConfig.cs" />
-    <Compile Include="App_Start\RavenConfig.cs" />
     <Compile Include="Areas\Admin\AdminAreaRegistration.cs" />
     <Compile Include="Areas\Admin\Controllers\HomeController.cs" />
     <Compile Include="Areas\Admin\ViewModels\Home\Index.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Dapper\SqlMapperExtensions.cs" />
+    <Compile Include="Dapper\SqlPagedListExtension.cs" />
     <Compile Include="Infrastructure\Attributes\HandlesErrorAttribute.cs" />
     <Compile Include="Infrastructure\Attributes\PasswordStrengthAttribute.cs" />
     <Compile Include="Infrastructure\Attributes\ProfileActionAttribute.cs" />
@@ -208,12 +207,19 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Infrastructure\DocumentStoreListener.cs" />
+    <Compile Include="Infrastructure\ConnectionFactory.cs" />
+    <Compile Include="Infrastructure\CSVExport.cs" />
+    <Compile Include="Infrastructure\DapperController.cs" />
+    <Compile Include="Infrastructure\Extensions\CaptchaExtensions.cs" />
+    <Compile Include="Infrastructure\Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Infrastructure\Extensions\EnumerableExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\HtmlHelperExtensions.cs" />
+    <Compile Include="Infrastructure\Extensions\ObjectExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\UrlHelperAdminUrls.cs" />
     <Compile Include="Infrastructure\Extensions\EnumExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\StringExtensions.cs" />
     <Compile Include="Infrastructure\Extensions\UrlHelperExtensions.cs" />
+    <Compile Include="Infrastructure\Extensions\XmlDocumentExtensions.cs" />
     <Compile Include="Infrastructure\IMetricTracker.cs" />
     <Compile Include="Infrastructure\IocRegistry.cs" />
     <Compile Include="Infrastructure\JsonNetResult.cs" />
@@ -227,9 +233,10 @@
     <Compile Include="Infrastructure\Modules\ProfiledUrlRoutingModule.cs" />
     <Compile Include="Infrastructure\Notification.cs" />
     <Compile Include="Infrastructure\NotificationType.cs" />
-    <Compile Include="Infrastructure\RavenController.cs" />
     <Compile Include="Infrastructure\StructureMapDependencyResolver.cs" />
     <Compile Include="Infrastructure\StructureMapSignalrDependencyResolver.cs" />
+    <Compile Include="Infrastructure\Tasks\KeepAliveTask.cs" />
+    <Compile Include="Infrastructure\Tasks\TasksRegistry.cs" />
     <Compile Include="Infrastructure\UserPrincipal.cs" />
     <Compile Include="Infrastructure\VaryByCustom.cs" />
     <Compile Include="Infrastructure\ViewDataConstants.cs" />
@@ -244,6 +251,9 @@
     <Compile Include="ViewModels\Error\InvalidPage.cs" />
     <Compile Include="ViewModels\Home\Index.cs" />
     <Compile Include="ViewModels\Shared\Error.cs" />
+    <Compile Include="ViewModels\Shared\MetaTags.cs" />
+    <Compile Include="ViewModels\Shared\MobileCaptcha.cs" />
+    <Compile Include="ViewModels\Shared\MobileCaptchaBase.cs" />
     <Compile Include="ViewModels\Shared\RedirectError.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -292,6 +302,9 @@
     <Content Include="Content\less\_lib\bootstrap\bundle.txt" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
+    <None Include="Scripts\jquery-1.9.1.intellisense.js" />
+    <Content Include="Scripts\jquery-1.9.1.js" />
+    <Content Include="Scripts\jquery-1.9.1.min.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -299,6 +312,7 @@
       <DependentUpon>Web.config</DependentUpon>
     </Content>
     <Content Include="Views\Web.config" />
+    <Content Include="Scripts\jquery-1.9.1.min.map" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

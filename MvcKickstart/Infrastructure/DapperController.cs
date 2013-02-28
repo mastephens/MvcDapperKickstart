@@ -1,19 +1,26 @@
-﻿using System.Linq;
+﻿using System;
+using System.Configuration;
+using System.Data;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Web.Mvc;
+using Dapper;
+using MvcKickstart.Infrastructure;
+using MvcKickstart.Models.Users;
+using ServiceStack.CacheAccess;
 using MvcKickstart.Infrastructure.Extensions;
 using MvcKickstart.Models.Users;
 using MvcKickstart.ViewModels.Shared;
-using Raven.Client;
 using ServiceStack.Logging;
 
 namespace MvcKickstart.Infrastructure
 {
-	public abstract class RavenController : Controller
+	public abstract class DapperController : Controller
 	{
-		protected IDocumentSession RavenSession { get; private set; }
-		protected IMetricTracker Metrics { get; private set; }
+		
+	    protected IDbConnection DbConnection { get; private set; }
+	    protected ICacheClient CacheClient { get; private set; }
 		protected ILog Log { get; private set; }
 
 		public new UserPrincipal User
@@ -24,10 +31,10 @@ namespace MvcKickstart.Infrastructure
 			}
 		}
 
-		protected RavenController(IDocumentSession connection, IMetricTracker metrics)
+		protected DapperController(IDbConnection dbConnection, ICacheClient cacheClient)
 		{
-			RavenSession = connection;
-			Metrics = metrics;
+		    DbConnection = dbConnection;
+		    CacheClient = cacheClient;
 			Log = LogManager.GetLogger(GetType());
 		}
 
@@ -41,22 +48,35 @@ namespace MvcKickstart.Infrastructure
 			}
 
 			User user;
-			if (filterContext.HttpContext.User.Identity.IsAuthenticated && filterContext.HttpContext.User.Identity.AuthenticationType == "Forms")
+			if (filterContext.HttpContext.User != null && filterContext.HttpContext.User.Identity.IsAuthenticated && filterContext.HttpContext.User.Identity.AuthenticationType == "Forms")
 			{
-				user = RavenSession.Query<User>().Customize(x => x.WaitForNonStaleResults()).SingleOrDefault(x => x.Username == filterContext.HttpContext.User.Identity.Name);
+			    var cacheKey = "User-" + filterContext.HttpContext.User.Identity.Name;
+			    user = CacheClient.Get<User>(cacheKey);
+                if (user == null)
+                {
+                    var userName = filterContext.HttpContext.User.Identity.Name;
+                    user = DbConnection.Query<User>(
+                        "SELECT TOP 1 * FROM [User] WHERE IsDeleted = 'false' AND Username = @userName",
+                        new {userName}).SingleOrDefault();
+                    CacheClient.Add(cacheKey, user,TimeSpan.FromMinutes(1));
+                }
 			}
 			else
 			{
 				user = new User();
 			}
-
-			filterContext.HttpContext.User = new UserPrincipal(user, filterContext.HttpContext.User.Identity);
-			Thread.CurrentPrincipal = filterContext.HttpContext.User;
-			base.OnAuthorization(filterContext);
+            if (filterContext.HttpContext.User != null)
+            {
+                filterContext.HttpContext.User = new UserPrincipal(user, filterContext.HttpContext.User.Identity);
+                Thread.CurrentPrincipal = filterContext.HttpContext.User;
+            }
+		    base.OnAuthorization(filterContext);
 		}
 
 		protected override void Execute(System.Web.Routing.RequestContext requestContext)
-		{
+        {
+            ViewBag.AddThisScriptPubId = ConfigurationManager.AppSettings.Get("AddThisProfileId");
+
 			base.Execute(requestContext);
 			// If this is an ajax request, clear the tempdata notification.
 			if (requestContext.HttpContext.Request.IsAjaxRequest())
@@ -65,6 +85,7 @@ namespace MvcKickstart.Infrastructure
 			}
 		}
 
+        
 		public new JsonNetResult Json(object data)
 		{
 			return new JsonNetResult { Data = data };

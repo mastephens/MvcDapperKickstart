@@ -5,7 +5,10 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Routing;
+using FluentScheduler;
+using MvcKickstart.App_Start;
 using MvcKickstart.Infrastructure;
+using MvcKickstart.Infrastructure.Tasks;
 using StackExchange.Profiling;
 using StructureMap;
 
@@ -40,8 +43,10 @@ namespace MvcKickstart
 			IocConfig.Bootstrap();
 			FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
 			RouteConfig.RegisterRoutes(RouteTable.Routes);
-			RavenConfig.Bootstrap();
+			DapperConfig.Bootstrap();
 			AutomapperConfig.CreateMappings();
+
+            TaskManager.Initialize(new TasksRegistry());
 		}
 
 		public override string GetVaryByCustomString(HttpContext context, string custom)

@@ -1,16 +1,18 @@
-﻿using System.Web.Mvc;
+﻿using System.Data;
+using System.Web.Mvc;
 using AttributeRouting.Web.Mvc;
 using MvcKickstart.Infrastructure;
 using MvcKickstart.Infrastructure.Attributes;
 using MvcKickstart.ViewModels.Home;
-using Raven.Client;
+using ServiceStack.CacheAccess;
 using StackExchange.Profiling;
 
 namespace MvcKickstart.Controllers
 {
-	public class HomeController : RavenController
+	public class HomeController : DapperController
 	{
-		public HomeController(IDocumentSession session, IMetricTracker metrics) : base(session, metrics)
+        public HomeController(IDbConnection dbConnection, ICacheClient cacheClient)
+            : base(dbConnection, cacheClient)
 		{
 		}
 

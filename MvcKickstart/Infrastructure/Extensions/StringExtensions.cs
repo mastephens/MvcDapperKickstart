@@ -1,7 +1,11 @@
-﻿using System.Security.Cryptography;
+﻿using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using ServiceStack.Text;
 
 namespace MvcKickstart.Infrastructure.Extensions
 {
@@ -57,7 +61,47 @@ namespace MvcKickstart.Infrastructure.Extensions
 				               {
 					               ContractResolver = new CamelCasePropertyNamesContractResolver()
 				               };
-			return JsonConvert.SerializeObject(obj, Formatting.Indented, settings);
+			return JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented, settings);
 		}
+
+        public static string ToSEOFriendlyName(this string s)
+        {
+            if (s == null) return null;
+            s = s.ToLower();
+            s = s.Normalize(NormalizationForm.FormD);
+            StringBuilder sb = new StringBuilder();
+            foreach (char c in s)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+            s = sb.ToString().Normalize(NormalizationForm.FormC);
+            s = Regex.Replace(s, @"[^a-z0-9_\-]+", "-", RegexOptions.IgnoreCase);
+            s = s.Trim(new char[] { '-' });
+
+            return s;
+        }
+
+        public static string ToSEOFriendlyNameTitleCase(this string s)
+        {
+            if (s == null) return null;
+            return s.ToSEOFriendlyName().ToTitleCase();
+        }
+
+        /// <summary>
+        /// Get a substring of the first N characters.
+        /// </summary>
+        public static string Truncate(this string source, int length)
+        {
+            if (source == null) return null;
+
+            if (source.Length > length)
+            {
+                source = source.Substring(0, length);
+            }
+            return source;
+        }
 	}
 }

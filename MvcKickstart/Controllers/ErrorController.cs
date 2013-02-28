@@ -1,16 +1,20 @@
-﻿using System.Linq;
+﻿using System.Data;
+using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using MvcKickstart.Infrastructure;
 using MvcKickstart.Infrastructure.Attributes;
 using MvcKickstart.ViewModels.Error;
-using Raven.Client;
+using ServiceStack.CacheAccess;
 
 namespace MvcKickstart.Controllers
 {
-	public class ErrorController : RavenController
+	public class ErrorController : DapperController
 	{
-		public ErrorController(IDocumentSession session, IMetricTracker metrics) : base (session, metrics){}
+		public ErrorController(IDbConnection dbConnection, ICacheClient cacheClient)
+            : base(dbConnection, cacheClient)
+		{
+		}
 
 		[GetOrPost("Error", RouteName = "Error_Index")]
 		[ConfiguredOutputCache]
@@ -33,7 +37,7 @@ namespace MvcKickstart.Controllers
 				if (!string.IsNullOrEmpty(value) && value.StartsWith("404;"))
 				{
 					// We were directed to this page by IIS.
-					Metrics.Increment(Metric.Error_404);
+					//Metrics.Increment(Metric.Error_404);
 
 					// TODO: Add smarter logic for suggesting pages?
 //					var url = value.Split(new[] { "404;" }, StringSplitOptions.RemoveEmptyEntries).LastOrDefault();

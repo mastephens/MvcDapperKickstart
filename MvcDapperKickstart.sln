@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcKickstart", "MvcKickstart\MvcKickstart.csproj", "{29FD2C9A-A11F-4495-9799-E50866C89878}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcDapperKickstart", "MvcKickstart\MvcDapperKickstart.csproj", "{29FD2C9A-A11F-4495-9799-E50866C89878}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{5A3A9E3A-5C7B-4487-B14E-1DC749FEA553}"
 	ProjectSection(SolutionItems) = preProject
@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{5A3A9E
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcKickstart.Tests", "MvcKickstart.Tests\MvcKickstart.Tests.csproj", "{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcDapperKickstart.Tests", "MvcKickstart.Tests\MvcDapperKickstart.Tests.csproj", "{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,18 +19,18 @@ Global
 		Review|Any CPU = Review|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}.Review|Any CPU.ActiveCfg = Release|Any CPU
-		{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}.Review|Any CPU.Build.0 = Release|Any CPU
 		{29FD2C9A-A11F-4495-9799-E50866C89878}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{29FD2C9A-A11F-4495-9799-E50866C89878}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{29FD2C9A-A11F-4495-9799-E50866C89878}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29FD2C9A-A11F-4495-9799-E50866C89878}.Release|Any CPU.Build.0 = Release|Any CPU
 		{29FD2C9A-A11F-4495-9799-E50866C89878}.Review|Any CPU.ActiveCfg = Review|Any CPU
 		{29FD2C9A-A11F-4495-9799-E50866C89878}.Review|Any CPU.Build.0 = Review|Any CPU
+		{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}.Review|Any CPU.ActiveCfg = Release|Any CPU
+		{0185B6AD-63B2-4CCD-84C5-7ACAC4FC32AA}.Review|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

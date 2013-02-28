@@ -1,26 +1,30 @@
 ﻿using System;
+using System.Data;
 using System.Linq;
 using System.Web.Mvc;
 using AttributeRouting.Web.Mvc;
 using AutoMapper;
+using Dapper;
+using Dapper.Contrib.Extensions;
 using MvcKickstart.Infrastructure;
 using MvcKickstart.Infrastructure.Attributes;
 using MvcKickstart.Infrastructure.Extensions;
 using MvcKickstart.Models.Users;
 using MvcKickstart.Services;
 using MvcKickstart.ViewModels.Account;
-using Raven.Client;
+using ServiceStack.CacheAccess;
 
 namespace MvcKickstart.Controllers
 {
-    public class AccountController : RavenController
+    public class AccountController : DapperController
     {
-	    private readonly IUserAuthenticationService _authenticationService;
+        private readonly IUserAuthenticationService _authenticationService;
 
-		public AccountController(IDocumentSession session, IMetricTracker metrics, IUserAuthenticationService authenticationService) : base (session, metrics)
-		{
-			_authenticationService = authenticationService;
-		}
+        public AccountController(IUserAuthenticationService authenticationService, IDbConnection dbConnection, ICacheClient cacheClient)
+            : base(dbConnection, cacheClient)
+        {
+            _authenticationService = authenticationService;
+        }
 
 		[GET("account", RouteName = "Account_Index")]
 		[ConfiguredOutputCache]
@@ -47,19 +51,22 @@ namespace MvcKickstart.Controllers
 		{
 			if (ModelState.IsValid)
 			{
-				var user = RavenSession.Query<User>().SingleOrDefault(x => !x.IsDeleted && x.Username == model.Username && x.Password == model.Password.ToSHAHash());
-				if (user != null)
+                var userName = model.Username;
+                var password = model.Password.ToSHAHash();
+                var user = DbConnection.Query<User>(
+                        "SELECT TOP 1 * FROM [User] WHERE IsDeleted = 'false' AND Username = @userName AND Password = @password",
+                        new { userName, password }).SingleOrDefault();
+                if (user != null)
 				{
 					_authenticationService.SetLoginCookie(user, model.RememberMe);
-					Metrics.Increment(Metric.Users_SuccessfulLogin);
-
+					
 					if (Url.IsLocalUrl(model.ReturnUrl))
 						return Redirect(model.ReturnUrl);
 					return RedirectToAction("Index", "Home");
 				}
 				ModelState.AddModelError("InvalidCredentials", string.Format("The user name or password provided is incorrect. Did you <a href='{0}'>forget your password?</a>", Url.Account().ForgotPassword()));
 			}
-			Metrics.Increment(Metric.Users_FailedLogin);
+			
 
 			// If we got this far, something failed, redisplay form
 			model.Password = null; //clear the password so they have to re-enter it
@@ -70,153 +77,174 @@ namespace MvcKickstart.Controllers
 		[GET("account/logout", RouteName = "Account_Logout")]
 		public ActionResult Logout(string returnUrl)
 		{
-			Metrics.Increment(Metric.Users_Logout);
 			_authenticationService.Logout();
 			if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
 				return Redirect(returnUrl);
 			return RedirectToAction("Index", "Home");
 		}
 
-		#region Register
+        #region Register
 
-		[GET("account/register", RouteName = "Account_Register")]
-		[ConfiguredOutputCache(VaryByParam = "returnUrl", VaryByCustom = VaryByCustom.UserIsAuthenticated)]
-		public ActionResult Register(string returnUrl)
-		{
-			if (User.Identity.IsAuthenticated)
-			{
-				return RedirectToAction("Index", "Home");
-			}
+        [GET("account/register", RouteName = "Account_Register")]
+        [ConfiguredOutputCache(VaryByParam = "returnUrl")]
+        public ActionResult Register(string returnUrl)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
 
-			return View(new Register { ReturnUrl = returnUrl });
-		}
+            return View(new Register { ReturnUrl = returnUrl });
+        }
 
-		[POST("account/register")]
-		public ActionResult Register(Register model)
-		{
-			if (_authenticationService.ReservedUsernames.Any(x => model.Username.Equals(x, StringComparison.OrdinalIgnoreCase)))
-			{
-				ModelState.AddModelError("Username", "Username is unavailable");
-			}
-			else
-			{
-				var existingUsername = RavenSession.Query<User>().SingleOrDefault(x => x.Username == model.Username && !x.IsDeleted);
-				if (existingUsername != null)
-				{
-					ModelState.AddModelError("Duplicate username", "Username is already in use");
-				}
-				else
-				{
-					var existingEmail = RavenSession.Query<User>().SingleOrDefault(x => x.Email == model.Email && !x.IsDeleted);
-					if (existingEmail != null)
-					{
-						ModelState.AddModelError("Duplicate email", "A user with that email exists");
-					}					
-				}
-			}
+        [POST("account/register")]
+        public ActionResult Register(Register model)
+        {
+            if (_authenticationService.ReservedUsernames.Any(x => model.Username.Equals(x, StringComparison.OrdinalIgnoreCase)))
+            {
+                ModelState.AddModelError("Username", "Username is unavailable");
+            }
+            else
+            {
 
-			if (ModelState.IsValid)
-			{
-				var newUser = Mapper.Map<User>(model);
-				newUser.LastActivity = DateTime.UtcNow;
-				newUser.Password = model.Password.ToSHAHash();
+                var userName = model.Username;
+                var existingUsername = DbConnection.Query<User>(
+                    "SELECT TOP 1 * FROM User WHERE IsDeleted = 'false' AND Username = @userName",
+                    new { userName }).SingleOrDefault();
+                if (existingUsername != null)
+                {
+                    ModelState.AddModelError("Duplicate username", "Username is already in use");
+                }
+                else
+                {
+                    var email = model.Email;
+                    var existingEmail = DbConnection.Query<User>(
+                    "SELECT TOP 1 * FROM User WHERE IsDeleted = 'false' AND Email = @email",
+                    new { email }).SingleOrDefault();
+                    if (existingEmail != null)
+                    {
+                        ModelState.AddModelError("Duplicate email", "A user with that email exists");
+                    }
+                }
+            }
 
-				RavenSession.Store(newUser);
-				RavenSession.SaveChanges();
-				Metrics.Increment(Metric.Users_Register);
-				_authenticationService.SetLoginCookie(newUser, true);
+            if (ModelState.IsValid)
+            {
+                var newUser = Mapper.Map<User>(model);
+                newUser.LastActivity = DateTime.UtcNow;
+                newUser.Password = model.Password.ToSHAHash();
 
-				// TODO: Send welcome email?
+                DbConnection.Insert(newUser);
 
-				return View("RegisterConfirmation", model);
-			}
+                //Metrics.Increment(Metric.Users_Register);
+                _authenticationService.SetLoginCookie(newUser, true);
 
-			// If we got this far, something failed, redisplay form
-			model.Password = null; //clear the password so they have to re-enter it
-			return View(model);
-		}
+                // TODO: Send welcome email?
 
-		[POST("account/validate-username/{username}", RouteName = "Account_ValidateUsername")]
-		[ConfiguredOutputCache(VaryByParam = "username")]
-		public JsonResult ValidateUsername(string username)
-		{
-			if (_authenticationService.ReservedUsernames.Any(x => username.Equals(x, StringComparison.OrdinalIgnoreCase)))
-				return Json(false);
+                return View("RegisterConfirmation", model);
+            }
 
-			var user = RavenSession.Query<User>().SingleOrDefault(x => x.Username == username && !x.IsDeleted);
-			return Json(user == null);
-		}
-		#endregion
+            // If we got this far, something failed, redisplay form
+            model.Password = null; //clear the password so they have to re-enter it
+            return View(model);
+        }
 
-		#region Forgot Password
-		[GET("account/forgot-password", RouteName = "Account_ForgotPassword")]
-		[ConfiguredOutputCache]
-		public ActionResult ForgotPassword()
-		{
-			return View();
-		}
+        [POST("account/validate-username/{username}", RouteName = "Account_ValidateUsername")]
+        [ConfiguredOutputCache(VaryByParam = "username")]
+        public JsonResult ValidateUsername(string username)
+        {
+            if (_authenticationService.ReservedUsernames.Any(x => username.Equals(x, StringComparison.OrdinalIgnoreCase)))
+                return Json(false);
 
-		[POST("account/forgot-password")]
-		public ActionResult ForgotPassword(ForgotPassword model)
-		{
-			if (ModelState.IsValid)
-			{
-				//get user by email address
-				var user = RavenSession.Query<User>().SingleOrDefault(x => x.Email == model.Email && !x.IsDeleted);
-				
-				//if no matching user, error
-				if (user == null)
-				{
-					ModelState.AddModelError("Invalid User Email", "A user could not be found with that email address");
-					return View(model);
-				}
+            var user = DbConnection.Query<User>(
+                       "SELECT TOP 1 * FROM User WHERE IsDeleted = 'false' AND Username = @username",
+                       new { username }).SingleOrDefault();
+            return Json(user == null);
+        }
+        #endregion
 
-				// Create token and send email
-				var token = new PasswordRetrieval(user, Guid.NewGuid());
-				RavenSession.Store(token);
-				RavenSession.SaveChanges();
-				Metrics.Increment(Metric.Users_SendPasswordResetEmail);
+        #region Forgot Password
+        [GET("account/forgot-password", RouteName = "Account_ForgotPassword")]
+        [ConfiguredOutputCache]
+        public ActionResult ForgotPassword()
+        {
+            return View();
+        }
 
-				// TODO: Send email with password token
-				return View("ForgotPasswordConfirmation");
-			}
-			return View(model);
-		}
+        [POST("account/forgot-password")]
+        public ActionResult ForgotPassword(ForgotPassword model)
+        {
+            if (ModelState.IsValid)
+            {
+                var email = model.Email;
+                var user = DbConnection.Query<User>(
+                       "SELECT TOP 1 * FROM User WHERE IsDeleted = 'false' AND Email = @email",
+                       new { email }).SingleOrDefault();
 
-		[GET("account/reset-password/{token}", RouteName = "Account_ResetPassword")]
-		public ActionResult ResetPassword(Guid token)
-		{
-			var model = new ResetPassword { Token = token };
+                //get user by email address
 
-			model.Data = RavenSession.Query<PasswordRetrieval>().SingleOrDefault(x => x.Token == token);
 
-			if (model.Data == null) 
-				return Redirect(Url.Home().Index());
 
-			return View(model);
-		}
+                //if no matching user, error
+                if (user == null)
+                {
+                    ModelState.AddModelError("Invalid User Email", "A user could not be found with that email address");
+                    return View(model);
+                }
 
-		[POST("account/reset-password/{token}")]
-		public ActionResult ResetPassword(ResetPassword model)
-		{
-			if (ModelState.IsValid)
-			{
-				model.Data = RavenSession.Query<PasswordRetrieval>().SingleOrDefault(x => x.Token == model.Token);
+                // Create token and send email
+                var token = new PasswordRetrieval(user, Guid.NewGuid());
+                DbConnection.Insert(token);
+                //Metrics.Increment(Metric.Users_SendPasswordResetEmail);
 
-				if (model.Data == null)
-					return Redirect(Url.Home().Index());
+                // TODO: Send email with password token
+                return View("ForgotPasswordConfirmation");
+            }
+            return View(model);
+        }
 
-				User.UserObject.Password = model.Password.ToSHAHash();
-				RavenSession.Store(User.UserObject);
-				RavenSession.Delete(model.Data);
-				RavenSession.SaveChanges();
+        [GET("account/reset-password/{token}", RouteName = "Account_ResetPassword")]
+        public ActionResult ResetPassword(Guid token)
+        {
+            var model = new ResetPassword { Token = token };
 
-				Metrics.Increment(Metric.Users_ResetPassword);
-				//show confirmation
-				return View("ResetPasswordConfirmation");
-			}
-			return View(model);
-		}
-		#endregion
+            var tokenData = DbConnection.Query<PasswordRetrieval>(
+                      "SELECT TOP 1 * FROM PasswordRetrieval WHERE Token = @token",
+                      new { token }).SingleOrDefault();
+
+
+            model.Data = tokenData;
+
+            if (model.Data == null)
+                return Redirect(Url.Home().Index());
+
+            return View(model);
+        }
+
+        [POST("account/reset-password/{token}")]
+        public ActionResult ResetPassword(ResetPassword model)
+        {
+            if (ModelState.IsValid)
+            {
+
+                model.Data = DbConnection.Query<PasswordRetrieval>(
+                  "SELECT TOP 1 * FROM PasswordRetrieval WHERE Token = @token",
+                  new { model.Token }).SingleOrDefault();
+
+                if (model.Data == null)
+                    return Redirect(Url.Home().Index());
+
+                User.UserObject.Password = model.Password.ToSHAHash();
+                DbConnection.Update(User);
+                DbConnection.Delete(model.Data);
+
+                //Metrics.Increment(Metric.Users_ResetPassword);
+                //}
+                //show confirmation
+                return View("ResetPasswordConfirmation");
+            }
+            return View(model);
+        }
+        #endregion
 	}
 }

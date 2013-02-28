@@ -1,8 +1,8 @@
 ﻿using System.Configuration;
 using System.Data;
-using Raven.Client;
-using Raven.Client.Document;
 using ServiceStack.CacheAccess;
+using StackExchange.Profiling;
+using StackExchange.Profiling.Data;
 using StructureMap.Configuration.DSL;
 
 namespace MvcKickstart.Infrastructure
@@ -20,28 +20,13 @@ namespace MvcKickstart.Infrastructure
 //			For<IDependencyResolver>().Singleton().Use<StructureMapSignalrDependencyResolver>();
 //			For<IConnectionManager>().Singleton().Use(GlobalHost.ConnectionManager);
 
-			For<IDocumentStore>()
-				.Singleton()
-				.Use(x =>
-						{
-							var store = new DocumentStore { ConnectionStringName = "Raven" };
-							store.RegisterListener(new DocumentStoreListener());
-							store.Initialize();
-
-							MvcMiniProfiler.RavenDb.Profiler.AttachTo(store);
-
-							return store;
-						})
-				.Named("RavenDB Document Store");
-
-			For<IDocumentSession>()
-				.HttpContextScoped()
-				.Use(x =>
-					{
-						var store = x.GetInstance<IDocumentStore>();
-						return store.OpenSession();
-					})
-				.Named("RavenDb Session");
+            For<IDbConnection>()
+                .HybridHttpOrThreadLocalScoped()
+                .Use(() =>
+                {
+                    var connection = ConnectionFactory.GetOpenConnection();
+                    return new ProfiledDbConnection(connection, MiniProfiler.Current);
+                });
 
 			For<IMetricTracker>()
 				.Singleton()
